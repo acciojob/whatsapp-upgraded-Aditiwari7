@@ -10,9 +10,9 @@ public class WhatsappService {
 
     WhatsappRepository whatsappRepository = new WhatsappRepository();
 
-    public String createUser(String name, String mobile){
+    public String createUser(String name, String mobile) throws Exception{
         if(whatsappRepository.MobileExist(mobile)){
-            throw new RuntimeException();
+            throw new Exception("User already exists");
         }
 
         whatsappRepository.createUserDB(name, mobile);

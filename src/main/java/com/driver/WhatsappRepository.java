@@ -41,7 +41,7 @@ public class WhatsappRepository {
     }
     public Group createGroupDB(List<User> users2){
         this.groupCount++;
-        Group newGroup = new Group("Group"+this.groupCount, users2.size());
+        Group newGroup = new Group("Group "+this.groupCount, users2.size());
         groupUserMap.put(newGroup, users2);
         groupAdminMap.put(newGroup, users2.get(0));
         return newGroup;
@@ -101,12 +101,13 @@ public class WhatsappRepository {
                 if(user1.contains(user)){
                     groupUserMap.remove(group);
                     total = groupUserMap.size() + groupMessageMap.size();
-                }else{
-                    throw new Exception("User not found");
                 }
             }
         }
 
+        if(total == 0){
+            throw new Exception("User not found");
+        }
         return total + this.messageId;
     }
 
