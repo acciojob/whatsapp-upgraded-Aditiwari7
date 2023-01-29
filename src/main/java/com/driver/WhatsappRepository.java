@@ -11,6 +11,7 @@ public class WhatsappRepository {
     private Map<Group, List<Message>> groupMessageMap;
     private Map<Group, User> groupAdminMap;
     private Map<String, User> usersMap;
+    private List<Message> messageList;
     private int groupCount;
     private int messageId;
 
@@ -19,6 +20,8 @@ public class WhatsappRepository {
         this.groupMessageMap = new HashMap<>();
         this.groupAdminMap = new HashMap<>();
         this.usersMap = new HashMap<>();
+
+        this.messageList = new ArrayList<>();
         this.groupCount = 0;
         this.messageId = 0;
     }
@@ -50,6 +53,7 @@ public class WhatsappRepository {
     public int createMessageDB(String content){
         this.messageId++;
         Message message = new Message(this.messageId, content, new Date());
+        messageList.add(message);
         return this.messageId;
     }
     public boolean checkGroup(Group group){
@@ -112,7 +116,7 @@ public class WhatsappRepository {
             throw new Exception("User not found");
         }
 
-        return total + 2*messageId - 2;
+        return total + messageList.size() + this.messageId;
     }
 
 
