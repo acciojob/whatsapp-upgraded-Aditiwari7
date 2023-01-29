@@ -116,7 +116,7 @@ public class WhatsappRepository {
             throw new Exception("User not found");
         }
 
-        return total + messageList.size() + this.messageId;
+        return total +  this.messageId;
     }
 
 
