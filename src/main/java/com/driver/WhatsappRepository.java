@@ -11,7 +11,9 @@ public class WhatsappRepository {
     private Map<Group, List<Message>> groupMessageMap;
     private Map<Group, User> groupAdminMap;
     private Map<String, User> usersMap;
-    private Map<Message, User> senderMap;
+    private Map<User, List<Message>> senderMap;
+
+    private List<Message> messageList;
     private int groupCount;
     private int messageId;
 
@@ -52,6 +54,7 @@ public class WhatsappRepository {
     public int createMessageDB(String content){
         this.messageId++;
         Message message = new Message(this.messageId, content, new Date());
+        messageList.add(message);
         return this.messageId;
     }
     public boolean checkGroup(Group group){
@@ -68,15 +71,16 @@ public class WhatsappRepository {
         return false;
     }
     public int sendMessage(Message message, User sender, Group group){
-        List<Message> messageList = new ArrayList<>();
+        List<Message> messages = new ArrayList<>();
 
         if(groupMessageMap.containsKey(group)){
-            messageList = groupMessageMap.get(group);
+            messages = groupMessageMap.get(group);
         }
 
-        messageList.add(message);
-        groupMessageMap.put(group, messageList);
-        senderMap.put(message, sender);
+        messageList.add((message));
+        messages.add(message);
+        groupMessageMap.put(group, messages);
+        senderMap.put(sender, messages);
 
         return messageList.size();
     }
@@ -93,30 +97,41 @@ public class WhatsappRepository {
         groupAdminMap.put(group, user);
     }
 
-//    public int removeUser(User user) throws Exception{
-//        int total = 0;
-//        boolean userFound = false;
-//
-//        for(Group group : groupUserMap.keySet()){
-//            List<User> users = groupUserMap.get(group);
-//
-//            if(users.contains(user)){
-//                userFound = true;
-//                if(users.get(0).equals(user)){
-//                    throw new Exception("Cannot remove admin");
-//                }
-//
-//                users.remove(user);
-//                total = groupUserMap.size();
-//                break;
-//            }
-//        }
-//        if(userFound == false){
-//            throw new Exception("User not found");
-//        }
-//
-//        return total +  this.messageId;
-//    }
+    public int removeUser(User user) throws Exception{
+        boolean userFound = false;
+        Group currGroup = null;
+
+        for(Group group : groupUserMap.keySet()){
+            List<User> users = groupUserMap.get(group);
+
+            if(checkApprover(user, group)){
+                throw new Exception("Cannot remove admin");
+            }
+
+            if(users.contains(user)){
+                userFound = true;
+                currGroup = group;
+                break;
+            }
+
+            if(userFound) break;
+
+        }
+
+        if(userFound == false){
+            throw new Exception("User not found");
+        }
+
+        List<Message> userMessage = senderMap.get(user);
+        for(Message message : userMessage){
+            messageList.remove(message);
+            groupMessageMap.get(currGroup).remove(message);
+        }
+        groupUserMap.get(currGroup).remove(user);
+        senderMap.remove(user);
+
+        return groupUserMap.get(currGroup).size() + groupMessageMap.get(currGroup).size() + messageList.size();
+    }
 
 
 }
