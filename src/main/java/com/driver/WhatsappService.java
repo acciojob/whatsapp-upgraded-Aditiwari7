@@ -54,7 +54,7 @@ public class WhatsappService {
         return "SUCCESS";
     }
 
-    public int removeUser(User user) throws Exception {
-        return whatsappRepository.removeUser(user);
-    }
+//    public int removeUser(User user) throws Exception {
+//        return whatsappRepository.removeUser(user);
+//    }
 }
