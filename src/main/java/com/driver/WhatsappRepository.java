@@ -92,23 +92,27 @@ public class WhatsappRepository {
 
     public int removeUser(User user) throws Exception{
         int total = 0;
+        boolean userFound = false;
 
-        if(groupAdminMap.containsValue(user)){
-            throw new Exception("Cannot remove admin");
-        }else{
-            for(Group group : groupUserMap.keySet()){
-                List<User> user1 = groupUserMap.get(group);
-                if(user1.contains(user)){
-                    groupUserMap.remove(group);
-                    total = groupUserMap.size() + groupMessageMap.size();
+        for(Group group : groupUserMap.keySet()){
+            List<User> users = groupUserMap.get(group);
+
+            if(users.contains(user)){
+                userFound = true;
+                if(users.get(0).equals(user)){
+                    throw new Exception("Cannot remove admin");
                 }
+
+                users.remove(user);
+                total = groupUserMap.size();
+                break;
             }
         }
-
-        if(total == 0){
+        if(userFound == false){
             throw new Exception("User not found");
         }
-        return total + this.messageId;
+
+        return total + 2*messageId - 2;
     }
 
 
