@@ -120,20 +120,29 @@ public class WhatsappRepository {
         }
 
         List<User> users = groupUserMap.get(currGroup);
-        if(users.contains(user)){
-            users.remove(user);
+        List<User> updatedUser = new ArrayList<>();
+        for(User user1 : users){
+            if(user1.equals(user))
+                continue;
+            updatedUser.add(user1);
         }
-        groupUserMap.put(currGroup, users);
+        groupUserMap.put(currGroup, updatedUser);
 
-        for(Message message : senderMap.keySet()){
+        List<Message> messages = groupMessageMap.get(currGroup);
+        List<Message> updatedMessage = new ArrayList<>();
+        for(Message message : messages){
             if(senderMap.get(message).equals(user))
                 continue;
+            updatedMessage.add(message);
+        }
+        groupMessageMap.put(currGroup, updatedMessage);
 
-            senderMap.put(message, senderMap.get(message));
+        for(Message message : senderMap.keySet()){
+            if(senderMap.get(message).equals(user)){
+                senderMap.remove(message, user);
+            }
         }
 
-        return groupUserMap.get(currGroup).size() + groupMessageMap.get(currGroup).size() + senderMap.size();
+        return updatedUser.size() + updatedMessage.size() + senderMap.size();
     }
-
-
 }
