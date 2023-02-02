@@ -11,9 +11,7 @@ public class WhatsappRepository {
     private Map<Group, List<Message>> groupMessageMap;
     private Map<Group, User> groupAdminMap;
     private Map<String, User> usersMap;
-    private Map<User, List<Message>> senderMap;
-
-    private List<Message> messageList;
+    private Map<Message, User> senderMap;
     private int groupCount;
     private int messageId;
 
@@ -54,7 +52,6 @@ public class WhatsappRepository {
     public int createMessageDB(String content){
         this.messageId++;
         Message message = new Message(this.messageId, content, new Date());
-        messageList.add(message);
         return this.messageId;
     }
     public boolean checkGroup(Group group){
@@ -77,12 +74,11 @@ public class WhatsappRepository {
             messages = groupMessageMap.get(group);
         }
 
-        messageList.add((message));
         messages.add(message);
         groupMessageMap.put(group, messages);
-        senderMap.put(sender, messages);
+        senderMap.put(message, sender);
 
-        return messageList.size();
+        return messages.size();
     }
 
     public boolean checkApprover(User approver, Group group){
@@ -104,33 +100,39 @@ public class WhatsappRepository {
         for(Group group : groupUserMap.keySet()){
             List<User> users = groupUserMap.get(group);
 
-            if(checkApprover(user, group)){
-                throw new Exception("Cannot remove admin");
-            }
+            for(User currUser : users){
+                if(currUser.equals(user)){
+                    if(groupAdminMap.get(group).equals(user)){
+                        throw new Exception("Cannot remove admin");
+                    }
 
-            if(users.contains(user)){
-                userFound = true;
-                currGroup = group;
+                    currGroup = group;
+                    userFound = true;
+                    break;
+                }
+            }
+            if(userFound)
                 break;
-            }
-
-            if(userFound) break;
-
         }
 
-        if(userFound == false){
+        if(!userFound){
             throw new Exception("User not found");
         }
 
-        List<Message> userMessage = senderMap.get(user);
-        for(Message message : userMessage){
-            messageList.remove(message);
-            groupMessageMap.get(currGroup).remove(message);
+        List<User> users = groupUserMap.get(currGroup);
+        if(users.contains(user)){
+            users.remove(user);
         }
-        groupUserMap.get(currGroup).remove(user);
-        senderMap.remove(user);
+        groupUserMap.put(currGroup, users);
 
-        return groupUserMap.get(currGroup).size() + groupMessageMap.get(currGroup).size() + messageList.size();
+        for(Message message : senderMap.keySet()){
+            if(senderMap.get(message).equals(user))
+                continue;
+
+            senderMap.put(message, senderMap.get(message));
+        }
+
+        return groupUserMap.get(currGroup).size() + groupMessageMap.get(currGroup).size() + senderMap.size();
     }
 
 
