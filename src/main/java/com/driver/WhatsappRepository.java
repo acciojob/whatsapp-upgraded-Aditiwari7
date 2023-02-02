@@ -137,11 +137,13 @@ public class WhatsappRepository {
         }
         groupMessageMap.put(currGroup, updatedMessage);
 
+        HashMap<Message, User> updatedSenderMap = new HashMap<>();
         for(Message message : senderMap.keySet()){
-            if(senderMap.get(message).equals(user)){
-                senderMap.remove(message, user);
-            }
+            if (senderMap.get(message).equals(user))
+                continue;
+            updatedSenderMap.put(message, senderMap.get(message));
         }
+        senderMap = updatedSenderMap;
 
         return updatedUser.size() + updatedMessage.size() + senderMap.size();
     }
